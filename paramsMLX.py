@@ -2,7 +2,7 @@
 class params:
     def __init__(self, eeData):
         if self.CheckEEPROMValid(eeData) != 0:
-            return -1
+            return None
 
         # int16_t kVdd;
         self.kVdd = int()
@@ -53,21 +53,20 @@ class params:
         # uint16_t outlierPixels[5];
         self.outlierPixels = 5*[int()]
         
-        if(error == 0):
-            ExtractVDDParameters(eeData);
-            ExtractPTATParameters(eeData);
-            ExtractGainParameters(eeData);
-            ExtractTgcParameters(eeData);
-            ExtractResolutionParameters(eeData);
-            ExtractKsTaParameters(eeData);
-            ExtractKsToParameters(eeData);
-            ExtractAlphaParameters(eeData);
-            ExtractOffsetParameters(eeData);
-            ExtractKtaPixelParameters(eeData);
-            ExtractKvPixelParameters(eeData);
-            ExtractCPParameters(eeData);
-            ExtractCILCParameters(eeData);
-            error = ExtractDeviatingPixels(eeData);
+        self.ExtractVDDParameters(eeData);
+        self.ExtractPTATParameters(eeData);
+        self.ExtractGainParameters(eeData);
+        self.ExtractTgcParameters(eeData);
+        self.ExtractResolutionParameters(eeData);
+        self.ExtractKsTaParameters(eeData);
+        self.ExtractKsToParameters(eeData);
+        self.ExtractAlphaParameters(eeData);
+        self.ExtractOffsetParameters(eeData);
+        self.ExtractKtaPixelParameters(eeData);
+        self.ExtractKvPixelParameters(eeData);
+        self.ExtractCPParameters(eeData);
+        self.ExtractCILCParameters(eeData);
+        self.ExtractDeviatingPixels(eeData);
 
     
     def ExtractVDDParameters(self, eeData):

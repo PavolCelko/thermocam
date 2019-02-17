@@ -13,7 +13,7 @@ class Mlx(object):
 
         self.const_params = paramsMLX.params(eeData)
         self.params = copy.copy(self.const_params)
-
+        
     
     def reg2list(reg):
         upper_byte = reg & 0xFF00
@@ -61,7 +61,7 @@ class Mlx(object):
 
         
         dataReady = 0;
-        while dataReady:
+        while dataReady == 0:
             # error = MLX90640_I2CRead(slaveAddr, 0x8000, 1, &statusRegister);
             statusRegister = self.i2c.MLX90640_I2CReadReg(0x8000)
             
@@ -81,7 +81,7 @@ class Mlx(object):
             # if(error != 0):
             #     return error;
                     
-            statusRegister = self.i2c.MLX90640_I2CRead(0x8000)
+            statusRegister = self.i2c.MLX90640_I2CReadReg(0x8000)
             # if(error != 0):
             #     return error;
             
@@ -92,14 +92,16 @@ class Mlx(object):
             return -8
         
         # error = MLX90640_I2CRead(slaveAddr, 0x800D, 1, &controlRegister1);
-        controlRegister1 = self.i2c.MLX90640_I2CRead(0x8000)
-        frame_data[832] = controlRegister1
-        frame_data[833] = statusRegister & 0x0001
+        controlRegister1 = self.i2c.MLX90640_I2CReadReg(0x8000)
+        # frame_data[832] = controlRegister1
+        # frame_data[833] = statusRegister & 0x0001
+        frame_data.append(controlRegister1)
+        frame_data.append(statusRegister & 0x0001)
         
         # if(error != 0):
         #     return error;
         
-        return frame_data[833];    
+        return frame_data;    
 
 
     # int MLX90640_GetSubPageNumber(uint16_t *frameData)
@@ -129,8 +131,8 @@ class Mlx(object):
         result = 768 * [float()]
         
         subPage = frameData[833]
-        vdd = self.MLX90640_GetVdd(frameData, self.params)
-        ta = self.MLX90640_GetTa(frameData, self.params)
+        vdd = self.MLX90640_GetVdd(frameData)
+        ta = self.MLX90640_GetTa(frameData)
         
     # ------------------------- Gain calculation -----------------------------------    
         gain = frameData[778]
@@ -214,8 +216,8 @@ class Mlx(object):
         result = 768 * [float()]
 
         subPage = frameData[833]
-        vdd = self.MLX90640_GetVdd(frameData, self.params)
-        ta = self.MLX90640_GetTa(frameData, self.params)
+        vdd = self.MLX90640_GetVdd(frameData)
+        ta = self.MLX90640_GetTa(frameData)
         ta4 = (ta + 273.15)**float(4)
         tr4 = (tr + 273.15)**float(4)
         taTr = tr4 - (tr4-ta4)/emissivity
@@ -326,7 +328,7 @@ class Mlx(object):
 
         self.params = copy.copy(self.const_params)
         
-        vdd = self.MLX90640_GetVdd(frameData, params);
+        vdd = self.MLX90640_GetVdd(frameData);
         
         ptat = frameData[800]
         if(ptat > 32767):

@@ -25,7 +25,12 @@ def main():
     mode = sensor.MLX90640_GetCurMode()
     print(hex(mode))
 
-    res = sensor.MLX90640_GetVdd()
+    frame_data = sensor.MLX90640_GetFrameData()
+
+    print("FRAME DATA len: ")
+    print(len(frame_data))
+
+    res = sensor.MLX90640_GetVdd(frame_data)
     
     # print("unknown mode {:X}".format(mode))
 
