@@ -25,6 +25,8 @@ def main():
     mode = sensor.MLX90640_GetCurMode()
     print(hex(mode))
 
+    res = sensor.MLX90640_GetVdd()
+    
     # print("unknown mode {:X}".format(mode))
 
     fun2()

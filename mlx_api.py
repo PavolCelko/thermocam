@@ -9,7 +9,9 @@ class Mlx(object):
 
     def __init__(self):
         self.i2c = i2c.MlxI2C(0x33)
-        self.const_params = paramsMLX.params()
+        eeData = self.MLX90640_DumpEE()
+
+        self.const_params = paramsMLX.params(eeData)
         self.params = copy.copy(self.const_params)
 
     
@@ -38,6 +40,73 @@ class Mlx(object):
         register = register | (0x0001 << TV_CHESS_MODE_POS_BIT)
 
         self.i2c.MLX90640_I2CWriteReg(0x800D, register)
+
+    # int MLX90640_DumpEE(uint8_t slaveAddr, uint16_t *eeData)
+    def MLX90640_DumpEE(self):
+    
+        eeData = self.i2c.MLX90640_I2CReadMultiReg(0x2400, 832)
+
+        return eeData
+
+    
+    # int MLX90640_GetFrameData(uint8_t slaveAddr, uint16_t *frameData)
+    def MLX90640_GetFrameData(self):
+    
+        # uint16_t dataReady = 1;
+        # uint16_t controlRegister1;
+        # uint16_t statusRegister;
+        # int error = 1;
+        cnt = 0
+        frame_data = []
+
+        
+        dataReady = 0;
+        while dataReady:
+            # error = MLX90640_I2CRead(slaveAddr, 0x8000, 1, &statusRegister);
+            statusRegister = self.i2c.MLX90640_I2CReadReg(0x8000)
+            
+            # if error != 0:
+            #     return error;
+            
+            dataReady = statusRegister & 0x0008;
+            
+        while(dataReady != 0 and cnt < 5):
+            # MLX90640_I2CWrite(slaveAddr, 0x8000, 0x0030)
+            self.i2c.MLX90640_I2CWriteReg(0x8000, 0x0030)
+            # if(error == -1):
+            #     return error;
+                
+            # error = MLX90640_I2CRead(slaveAddr, 0x0400, 832, frameData)
+            frame_data = self.i2c.MLX90640_I2CReadMultiReg(0x0400, 832)
+            # if(error != 0):
+            #     return error;
+                    
+            statusRegister = self.i2c.MLX90640_I2CRead(0x8000)
+            # if(error != 0):
+            #     return error;
+            
+            dataReady = statusRegister & 0x0008
+            cnt = cnt + 1
+        
+        if(cnt > 4):
+            return -8
+        
+        # error = MLX90640_I2CRead(slaveAddr, 0x800D, 1, &controlRegister1);
+        controlRegister1 = self.i2c.MLX90640_I2CRead(0x8000)
+        frame_data[832] = controlRegister1
+        frame_data[833] = statusRegister & 0x0001
+        
+        # if(error != 0):
+        #     return error;
+        
+        return frame_data[833];    
+
+
+    # int MLX90640_GetSubPageNumber(uint16_t *frameData)
+    def MLX90640_GetSubPageNumber(frameData):
+    
+        return frameData[833];
+      
 
 #void MLX90640_GetImage(uint16_t *frameData, const paramsMLX90640 *params, float *result)
     def MLX90640_GetImage(self, frameData):
@@ -273,4 +342,3 @@ class Mlx(object):
         ta = ta / self.params.KtPTAT + 25
         
         return ta
-    

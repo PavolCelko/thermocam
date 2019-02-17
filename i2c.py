@@ -43,7 +43,7 @@ class MlxI2C:
         return self.list2reg(list(read))
     
     #int MLX90640_I2CRead(uint8_t slaveAddr,uint16_t startAddress, uint16_t nMemAddressRead, uint16_t *data);
-    def MLX90640_I2CReadMultiReg(self, startReadAddress, data_len, data):
+    def MLX90640_I2CReadMultiReg(self, startReadAddress, data_len):
         reg_address =  [0x00, 0x00]
         reg_address[0] = (startReadAddress & 0xFF00) >> 8
         reg_address[1] = startReadAddress & 0x00FF
