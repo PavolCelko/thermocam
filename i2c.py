@@ -55,4 +55,10 @@ class MlxI2C:
         with SMBusWrapper(1) as bus:
             bus.i2c_rdwr(write, read)
 
-        return list(read)
+        byte_list = list(read)
+        word_list = []
+
+        for i in range(0, data_len * TWO_BYTES_LEN, 2):
+            word_list.append(((byte_list[i] << 8) & 0xFF00) | (byte_list[i + 1] & 0x00FF))
+
+        return word_list
