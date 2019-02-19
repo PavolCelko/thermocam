@@ -209,7 +209,7 @@ class Mlx(object):
         # float Sx;
         # float To;
         alphaCorrR = 4 * [float()]
-        # int8_t range;
+        # int8_t Range;
         # uint16_t subPage;
         
         self.params = copy.copy(self.const_params)
@@ -282,17 +282,17 @@ class Mlx(object):
                 To = math.sqrt(math.sqrt(irData/(alphaCompensated * (1 - self.params.ksTo[1] * 273.15) + Sx) + taTr)) - 273.15
                         
                 if(To < self.params.ct[1]):
-                    range = 0;
+                    Range = 0;
                 else:
                     if(To < self.params.ct[2]):
-                        range = 1
+                        Range = 1
                     else:
                         if(To < self.params.ct[3]):
-                            range = 2
+                            Range = 2
                         else:
-                            range = 3
+                            Range = 3
                 
-                To = math.sqrt(math.sqrt(irData / (alphaCompensated * alphaCorrR[range] * (1 + self.params.ksTo[range] * (To - self.params.ct[range]))) + taTr)) - 273.15
+                To = math.sqrt(math.sqrt(irData / (alphaCompensated * alphaCorrR[Range] * (1 + self.params.ksTo[Range] * (To - self.params.ct[Range]))) + taTr)) - 273.15
                 
                 result[pixelNumber] = To
 
