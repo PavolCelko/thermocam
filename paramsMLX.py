@@ -357,6 +357,8 @@ class params:
         offsetSP = 2 * [int()]
         # float cpKv;
         # float cpKta;
+        cpKv = float()
+        cpKta = float()
         # uint8_t alphaScale;
         # uint8_t ktaScale1;
         # uint8_t kvScale;
