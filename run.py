@@ -15,7 +15,7 @@ def main():
     
     sensor = mlx_api.Mlx(testflag=True)
 
-    # print_params(sensor.const_params)
+    print_params(sensor.const_params)
 
     # print(sensor.const_params.alpha[333])
     # print(type(sensor.const_params.alpha[333]))
@@ -23,8 +23,10 @@ def main():
     # print(float(sensor.const_params.alpha[333]))
     # print(float(type(sensor.const_params.alpha[333])))
 
+    print("cpKta")
     print(sensor.const_params.cpKta)
     print(type(sensor.const_params.cpKta))
+    print("KsTa")
     print(sensor.const_params.KsTa)
     print(type(sensor.const_params.KsTa))
     
