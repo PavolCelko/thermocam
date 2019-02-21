@@ -41,6 +41,19 @@ class Mlx(object):
 
         self.i2c.MLX90640_I2CWriteReg(0x800D, register)
 
+    def MLX90640_GetCurResolution(self):
+        register = int()
+        register = self.i2c.MLX90640_I2CReadReg(0x800D)
+        resolutionRAM = (register & 0x0C00) >> 10;
+        return register
+
+    def MLX90640_SetResolution(self):
+        register = int()
+        register = self.i2c.MLX90640_I2CReadReg(0x800D)
+        register = register & ~(0x0003 << 10)
+
+        self.i2c.MLX90640_I2CWriteReg(0x800D, register)
+
     # int MLX90640_DumpEE(uint8_t slaveAddr, uint16_t *eeData)
     def MLX90640_DumpEE(self):
     
@@ -92,7 +105,7 @@ class Mlx(object):
             return -8
         
         # error = MLX90640_I2CRead(slaveAddr, 0x800D, 1, &controlRegister1);
-        controlRegister1 = self.i2c.MLX90640_I2CReadReg(0x8000)
+        controlRegister1 = self.i2c.MLX90640_I2CReadReg(0x800D)
         # frame_data[832] = controlRegister1
         # frame_data[833] = statusRegister & 0x0001
         frame_data.append(controlRegister1)
@@ -101,7 +114,7 @@ class Mlx(object):
         # if(error != 0):
         #     return error;
         
-        return frame_data;    
+        return frame_data
 
 
     # int MLX90640_GetSubPageNumber(uint16_t *frameData)
@@ -144,8 +157,8 @@ class Mlx(object):
     # ------------------------- Image calculation -------------------------------------    
         mode = (frameData[832] & 0x1000) >> 5;
         
-        irDataCP[0] = frameData[776]
-        irDataCP[1] = frameData[808]
+        irDataCP[0] = float(frameData[776])
+        irDataCP[1] = float(frameData[808])
         for i in range(2):
         
             if irDataCP[i] > 32767:
@@ -169,7 +182,7 @@ class Mlx(object):
                 pattern = chessPattern; 
             
             if(pattern == frameData[833]):
-                irData = frameData[pixelNumber]
+                irData = float(frameData[pixelNumber])
                 if(irData > 32767):
                     irData = irData - 65536
                 irData = irData * gain
@@ -228,7 +241,7 @@ class Mlx(object):
         alphaCorrR[3] = alphaCorrR[2] * (1 + self.params.ksTo[3] * (self.params.ct[3] - self.params.ct[2]))
         
     # ------------------------- Gain calculation -----------------------------------    
-        gain = frameData[778];
+        gain = float(frameData[778])
         if(gain > 32767):
             gain = gain - 65536;
         
@@ -238,8 +251,8 @@ class Mlx(object):
     # ------------------------- To calculation -------------------------------------    
         mode = (frameData[832] & 0x1000) >> 5
         
-        irDataCP[0] = frameData[776]
-        irDataCP[1] = frameData[808]
+        irDataCP[0] = float(frameData[776])
+        irDataCP[1] = float(frameData[808])
         for i in range(2):
             if(irDataCP[i] > 32767):
                 irDataCP[i] = irDataCP[i] - 65536
@@ -308,7 +321,7 @@ class Mlx(object):
 
         self.params = copy.copy(self.const_params)
         
-        vdd = frameData[810]
+        vdd = float(frameData[810])
         if(vdd > 32767):
             vdd = vdd - 65536
         resolutionRAM = (frameData[832] & 0x0C00) >> 10
@@ -330,11 +343,11 @@ class Mlx(object):
         
         vdd = self.MLX90640_GetVdd(frameData);
         
-        ptat = frameData[800]
+        ptat = float(frameData[800])
         if(ptat > 32767):
             ptat = ptat - 65536
         
-        ptatArt = frameData[768]
+        ptatArt = float(frameData[768])
         if(ptatArt > 32767):
             ptatArt = ptatArt - 65536
         
