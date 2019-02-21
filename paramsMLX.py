@@ -84,20 +84,20 @@ class params:
 
     def ExtractPTATParameters(self, eeData):
 
-        KvPTAT = (eeData[50] & 0xFC00) >> 10
+        KvPTAT = float((eeData[50] & 0xFC00) >> 10)
         if(KvPTAT > 31):
             KvPTAT = KvPTAT - 64
         
         KvPTAT = KvPTAT/4096
         
-        KtPTAT = eeData[50] & 0x03FF
+        KtPTAT = float(eeData[50] & 0x03FF)
         if(KtPTAT > 511):
             KtPTAT = KtPTAT - 1024
         KtPTAT = KtPTAT/8
         
         vPTAT25 = eeData[49]
         
-        alphaPTAT = (eeData[16] & 0xF000) / (2 ** 14) + 8.0
+        alphaPTAT = float((eeData[16] & 0xF000)) / (2 ** 14) + 8.0
         
         self.KvPTAT = KvPTAT
         self.KtPTAT = KtPTAT
@@ -114,7 +114,7 @@ class params:
 
 
     def ExtractTgcParameters(self, eeData):
-        tgc = eeData[60] & 0x00FF
+        tgc = float(eeData[60] & 0x00FF)
         if(tgc > 127):
             tgc = tgc - 256
         tgc = tgc / 32.0
@@ -129,7 +129,7 @@ class params:
 
     def ExtractKsTaParameters(self, eeData):
 
-        KsTa = (eeData[60] & 0xFF00) >> 8
+        KsTa = float((eeData[60] & 0xFF00) >> 8)
         if(KsTa > 127):
             KsTa = KsTa -256
         KsTa = KsTa / 8192.0
@@ -170,6 +170,7 @@ class params:
         accRow = 24 * [int()]
         # int accColumn[32]
         accColumn = 32 * [int()]
+        
         
         accRemScale = eeData[32] & 0x000F
         accColumnScale = (eeData[32] & 0x00F0) >> 4
@@ -303,7 +304,7 @@ class params:
             for j in range(32):
                 p = 32 * i +j
                 split = 2*(p/32 - (p/64)*2) + p%2
-                self.kta[p] = (eeData[64 + p] & 0x000E) >> 1
+                self.kta[p] = float((eeData[64 + p] & 0x000E) >> 1)
                 if (self.kta[p] > 3):
                     self.kta[p] = self.kta[p] - 8
                 self.kta[p] = self.kta[p] * (1 << ktaScale2)
@@ -345,7 +346,7 @@ class params:
             for j in range(32):
                 p = 32 * i +j
                 split = 2*(p/32 - (p/64)*2) + p%2
-                self.kv[p] = KvT[split]
+                self.kv[p] = float(KvT[split])
                 self.kv[p] = self.kv[p] / (2 ** kvScale)
         
 
@@ -410,17 +411,17 @@ class params:
         calibrationModeEE = (eeData[10] & 0x0800) >> 4
         calibrationModeEE = calibrationModeEE ^ 0x80
 
-        ilChessC[0] = (eeData[53] & 0x003F)
+        ilChessC[0] = float((eeData[53] & 0x003F))
         if (ilChessC[0] > 31):
             ilChessC[0] = ilChessC[0] - 64
         ilChessC[0] = ilChessC[0] / 16.0
         
-        ilChessC[1] = (eeData[53] & 0x07C0) >> 6
+        ilChessC[1] = float((eeData[53] & 0x07C0) >> 6)
         if (ilChessC[1] > 15):
             ilChessC[1] = ilChessC[1] - 32
         ilChessC[1] = ilChessC[1] / 2.0
         
-        ilChessC[2] = (eeData[53] & 0xF800) >> 11
+        ilChessC[2] = float((eeData[53] & 0xF800) >> 11)
         if (ilChessC[2] > 15):
             ilChessC[2] = ilChessC[2] - 32
         ilChessC[2] = ilChessC[2] / 8.0
