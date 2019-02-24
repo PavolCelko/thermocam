@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import mlx_api
+import time
 
 def main():
     
@@ -16,33 +17,42 @@ def main():
     else:
         mode = "CHESS"
     print("Current mode: " + mode)
-    
-    frame_list = sensor.MLX90640_GetFrameData()
-    print("FRAME len: " + str(len(frame_list)))
-    # print(len(frame_list))
-    # print("frame : ")
-    # print(frame_list)
 
-    Ta = sensor.MLX90640_GetTa(frame_list)
-    print("Ta: " + str(Ta))
-    
-    vdd = sensor.MLX90640_GetVdd(frame_list)
-    print("vdd: " + str(vdd))
-    
-    image = sensor.MLX90640_CalculateTo(frame_list, 0.95, Ta)
-    round_image = []
-    for i in image:
-        round_image.append(int(round(i)))
-    print("calc To IMAGE: ")
-    for i in range(0, len(round_image), 32):
-        print(round_image[i:(i + 31)])
+    refreshRate = sensor.MLX90640_GetRefreshRate()
+    print("refreshRate: " + str(refreshRate))
 
-    # image = sensor.MLX90640_GetImage(frame_list)
-    # print("IMAGE len: ")
-    # print(len(image))
-    # print("IMAGE: ")
-    # print(image)
+    for subpage in range(2):
 
+        frame_list = sensor.MLX90640_GetFrameData()
+        print("FRAME len: " + str(len(frame_list)))
+        # print("frame : ")
+        # print(frame_list)
+
+        subpage = frame_list[833]
+        print("subpage: " + str(subpage))
+        Ta = sensor.MLX90640_GetTa(frame_list)
+        print("Ta: " + str(Ta))
+        vdd = sensor.MLX90640_GetVdd(frame_list)
+        print("vdd: " + str(vdd))
+
+        image = sensor.MLX90640_CalculateTo(frame_list, 0.95, Ta)
+        image = sensor.temp_latest_page
+        round_image = []
+        for i in image:
+            round_image.append(int(round(i)))
+        print("calc To IMAGE: \n")
+        for i in range(0, len(round_image), 32):
+            # print(round_image[i:(i + 31)])
+            print("{:02d}:"
+                "{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|"
+                "{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}". 
+                format(int(i/32), *round_image[i:(i + 32)]))
+        # print(round_image)
+
+        # wait for RR - 20%    (which is 80% of RR)
+        time.sleep(float(1 / refreshRate) * 0.8)
+
+    imager.list_to_image(round_image)    
     
 if __name__ == '__main__':
     main()

@@ -4,6 +4,8 @@ import copy
 import math
 
 TV_CHESS_MODE_POS_BIT = 12
+ROW_LEN               = 32
+COLUMN_LEN            = 24
 
 class Mlx(object):
 
@@ -13,6 +15,10 @@ class Mlx(object):
 
         self.const_params = paramsMLX.params(eeData)
         self.params = copy.copy(self.const_params)
+
+        self.latest_page_frame = (ROW_LEN * COLUMN_LEN + 64 + 2)* [int(0x0000)]
+        self.temp_latest_page = ROW_LEN * COLUMN_LEN * [float(0)]
+        self.latest_subpage_idx = 0xFF
         
     
     def reg2list(reg):
@@ -20,6 +26,30 @@ class Mlx(object):
         lower_byte = reg & 0x00FF
         return list(upper_byte, lower_byte)
 
+    # this looks to be not useful because it it makes no sense to store raw frame page data without bytes [768:833] - calc helper data
+    def update_latest_page_frame(self, meassured_frame):
+        # this is for TV interleaved mode
+        start_row_index = self.MLX90640_GetSubPageNumber(meassured_frame)
+
+        # copy raw pixel data
+        for row_index in range(start_row_index, 24, 2):
+            first_pixel = row_index * ROW_LEN
+            last_pixel = (row_index + 1) * ROW_LEN
+            self.latest_page_frame[first_pixel : last_pixel] = meassured_frame[first_pixel : last_pixel]
+            
+        # copying non image - calc helper data
+        self.latest_page_frame[768:] = meassured_frame[768:]
+        
+    def update_temp_latest_page(self, calculated_temp_frame, subpage):
+        # this is for TV interleaved mode
+        start_row_index = subpage
+        # start_row_index = self.MLX90640_GetSubPageNumber(calculated_temp_frame)
+
+        for row_index in range(start_row_index, 24, 2):
+            first_pixel = row_index * ROW_LEN
+            last_pixel = (row_index + 1) * ROW_LEN
+            self.temp_latest_page[first_pixel : last_pixel] = calculated_temp_frame[first_pixel : last_pixel]
+            
     def MLX90640_GetCurMode(self):
         register = int()
         
@@ -45,13 +75,24 @@ class Mlx(object):
         register = int()
         register = self.i2c.MLX90640_I2CReadReg(0x800D)
         resolutionRAM = (register & 0x0C00) >> 10;
-        return register
+        return resolutionRAM
 
-    def MLX90640_SetResolution(self):
+    def MLX90640_SetResolution(self, resolution):
         register = int()
         register = self.i2c.MLX90640_I2CReadReg(0x800D)
-        register = register & ~(0x0003 << 10)
+        register = register & ~((0x0003 & resolution) << 10)
+        self.i2c.MLX90640_I2CWriteReg(0x800D, register)
 
+    def MLX90640_GetRefreshRate(self):
+        register = int()
+        register = self.i2c.MLX90640_I2CReadReg(0x800D)
+        refreshRate = (register & 0x0380) >> 7;
+        return refreshRate
+
+    def MLX90640_SetRefreshRate(self, refr_rate):
+        register = int()
+        register = self.i2c.MLX90640_I2CReadReg(0x800D)
+        register = register & ~((0x0007 & refr_rate) << 7)
         self.i2c.MLX90640_I2CWriteReg(0x800D, register)
 
     # int MLX90640_DumpEE(uint8_t slaveAddr, uint16_t *eeData)
@@ -113,12 +154,15 @@ class Mlx(object):
         
         # if(error != 0):
         #     return error;
+
+        self.update_latest_page_frame(frame_data)
+        self.latest_subpage_idx = statusRegister & 0x0001        
         
         return frame_data
 
 
     # int MLX90640_GetSubPageNumber(uint16_t *frameData)
-    def MLX90640_GetSubPageNumber(frameData):
+    def MLX90640_GetSubPageNumber(self, frameData):
     
         return frameData[833];
       
@@ -308,6 +352,8 @@ class Mlx(object):
                 To = math.sqrt(math.sqrt(irData / (alphaCompensated * alphaCorrR[Range] * (1 + self.params.ksTo[Range] * (To - self.params.ct[Range]))) + taTr)) - 273.15
                 
                 result[pixelNumber] = To
+        
+        self.update_temp_latest_page(result, subPage)
 
         return result
 
