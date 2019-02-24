@@ -2,6 +2,7 @@
 
 import mlx_api
 import time
+import imager
 
 def main():
     
@@ -40,17 +41,11 @@ def main():
         round_image = []
         for i in image:
             round_image.append(int(round(i)))
-        print("calc To IMAGE: \n")
-        for i in range(0, len(round_image), 32):
-            # print(round_image[i:(i + 31)])
-            print("{:02d}:"
-                "{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|"
-                "{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}|{:03d}". 
-                format(int(i/32), *round_image[i:(i + 32)]))
-        # print(round_image)
-
+        
         # wait for RR - 20%    (which is 80% of RR)
         time.sleep(float(1 / refreshRate) * 0.8)
+
+    # imager.print_temp_integer_map(round_image)
 
     imager.list_to_image(round_image)    
     
