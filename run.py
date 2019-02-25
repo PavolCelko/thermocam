@@ -22,33 +22,35 @@ def main():
     refreshRate = sensor.MLX90640_GetRefreshRate()
     print("refreshRate: " + str(refreshRate))
 
-    for subpage in range(2):
+    for coutner in range(1):
 
-        frame_list = sensor.MLX90640_GetFrameData()
-        print("FRAME len: " + str(len(frame_list)))
-        # print("frame : ")
-        # print(frame_list)
+        for subpage in range(2):
 
-        subpage = frame_list[833]
-        print("subpage: " + str(subpage))
-        Ta = sensor.MLX90640_GetTa(frame_list)
-        print("Ta: " + str(Ta))
-        vdd = sensor.MLX90640_GetVdd(frame_list)
-        print("vdd: " + str(vdd))
+            frame_list = sensor.MLX90640_GetFrameData()
+            # print("FRAME len: " + str(len(frame_list)))
+            # print("frame : ")
+            # print(frame_list)
 
-        image = sensor.MLX90640_CalculateTo(frame_list, 0.95, Ta)
-        image = sensor.temp_latest_page
-        round_image = []
-        for i in image:
-            round_image.append(int(round(i)))
+            subpage = frame_list[833]
+            # print("subpage: " + str(subpage))
+            Ta = sensor.MLX90640_GetTa(frame_list)
+            # print("Ta: " + str(Ta))
+            # vdd = sensor.MLX90640_GetVdd(frame_list)
+            # print("vdd: " + str(vdd))
+
+            image = sensor.MLX90640_CalculateTo(frame_list, 0.95, Ta)
+            image = sensor.temp_latest_page
+            round_image = []
+            for i in image:
+                round_image.append(int(round(i)))
+            
+            # wait for RR - 20%    (which is 80% of RR)
+            time.sleep(float(1 / refreshRate) * 0.8)
+
+        # imager.print_temp_integer_map(round_image)
+
+        imager.list_to_image(round_image)    
         
-        # wait for RR - 20%    (which is 80% of RR)
-        time.sleep(float(1 / refreshRate) * 0.8)
-
-    # imager.print_temp_integer_map(round_image)
-
-    imager.list_to_image(round_image)    
-    
 if __name__ == '__main__':
     main()
         

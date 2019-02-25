@@ -30,25 +30,20 @@ def list_to_image(sviecka):
     
     img_orig = Image.fromarray(array_sviecka, 'RGB')
     
-    # img = img_orig.resize((w, h), Image.NEAREST)
-    # img.save('sviecka_nearest.png')
-    # img.show()
-
-    # img = img_orig.resize((w, h), Image.ANTIALIAS)
-    # img.save('sviecka_antial.png')
-    # img.show()
-
-    # img = img_orig.resize((w, h), Image.BILINEAR)
-    # img.save('sviecka_bilinear.png')
-    # img.show()
-
-    # img = img_orig.resize((w, h), Image.BICUBIC)
-    # img.save('sviecka_bicubic.png')
-    # img.show()
-
+    img = img_orig.resize((w, h), Image.NEAREST)
+    img.save('server/sviecka_nearest.jpg')
+    
+    img = img_orig.resize((w, h), Image.ANTIALIAS)
+    img.save('server/sviecka_antial.jpg')
+    
+    img = img_orig.resize((w, h), Image.BILINEAR)
+    img.save('server/sviecka_bilinear.jpg')
+    
+    img = img_orig.resize((w, h), Image.BICUBIC)
+    img.save('server/sviecka_bicubic.jpg')
+    
     img = img_orig.resize((w, h), Image.LANCZOS)
-    img.save('sviecka_lanczos.png')
-    img.show()
+    img.save('server/sviecka_lanczos.jpg')
     
 def print_temp_integer_map(temp_list):
     for i in range(0, len(temp_list), 32):
