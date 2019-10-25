@@ -24,13 +24,14 @@ int main(void)
     uint16_t aEEData_test_result[EEPROM_LEN] = {0};
     uint16_t aFrame_0_test_result[FRAME_LEN] = {0};
     uint16_t aFrame_1_test_result[FRAME_LEN] = {0};
-    uint16_t statusReg = 0xFFFF;
+
+    float tr = 0;
+    float pfFrameT0[FRAME_LEN] = {0};
 
     int passCounter = 0;
     int failCounter = 0;
 
     MLX90640_I2CInit();
-    printf("%04X\n", statusReg);
 
     status = MLX90640_DumpEE(0x33, aEEData_test_result);    
     if(status == 0)
@@ -98,29 +99,13 @@ int main(void)
     printf("calibrationModeEE: %u\n", sensorParams.calibrationModeEE);
     printf("KsTa: %f\n", sensorParams.KsTa);
 
-        // int16_t vdd25;
-        // float KvPTAT;
-        // float KtPTAT;
-        // uint16_t vPTAT25;
-        // float alphaPTAT;
-        // int16_t gainEE;
-        // float tgc;
-        // float cpKv;
-        // float cpKta;
-        // uint8_t resolutionEE;
-        // uint8_t calibrationModeEE;
-        // float KsTa;
-        // float ksTo[4];
-        // int16_t ct[4];
-        // float alpha[768];    
-        // int16_t offset[768];    
-        // float kta[768];    
-        // float kv[768];
-        // float cpAlpha[2];
-        // int16_t cpOffset[2];
-        // float ilChessC[3]; 
-        // uint16_t brokenPixels[5];
-        // uint16_t outlierPixels[5]; 
+    printf("T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0\n\n");
+    tr = MLX90640_GetTa(aFrame_0_test_result, &sensorParams) - 8;
+
+    MLX90640_CalculateTo(aFrame_0_test_result, &sensorParams, 1.0, tr, pfFrameT0);
+
+    for(i = 0; i < 32; i++)
+        printf("%0.3f ", pfFrameT0[i]);
 
     return status;
 }

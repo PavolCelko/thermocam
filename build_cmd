@@ -1,1 +1,1 @@
-g++ -Imlx90640-library/headers/ mlx90640-library/functions/MLX90640_API.cpp mlx90640-library/functions/MLX90640_I2C_emul.cpp  -shared -fPIC  -o x.so
+g++ -Imlx90640-library/headers/ mlx90640-library/functions/MLX90640_API.cpp mlx90640-library/functions/MLX90640_I2C_emul.cpp test.cpp -o test
