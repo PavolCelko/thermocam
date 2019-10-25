@@ -74,25 +74,29 @@ class Mlx(object):
     def MLX90640_GetCurResolution(self):
         register = int()
         register = self.i2c.MLX90640_I2CReadReg(0x800D)
-        resolutionRAM = (register & 0x0C00) >> 10;
+        resolutionRAM = (register & 0x0C00) >> 10
         return resolutionRAM
 
     def MLX90640_SetResolution(self, resolution):
         register = int()
         register = self.i2c.MLX90640_I2CReadReg(0x800D)
-        register = register & ~((0x0003 & resolution) << 10)
+        # register = register & ~((0x0003 & resolution) << 10)
+        register = register | ((0x0003 & resolution) << 10)
         self.i2c.MLX90640_I2CWriteReg(0x800D, register)
 
     def MLX90640_GetRefreshRate(self):
         register = int()
         register = self.i2c.MLX90640_I2CReadReg(0x800D)
-        refreshRate = (register & 0x0380) >> 7;
+        refreshRate = (register & 0x0380) >> 7
+        refreshRate = 2 ** (refreshRate - 1)
         return refreshRate
 
     def MLX90640_SetRefreshRate(self, refr_rate):
         register = int()
         register = self.i2c.MLX90640_I2CReadReg(0x800D)
-        register = register & ~((0x0007 & refr_rate) << 7)
+        # register = register & ~((0x0007 & refr_rate) << 7)
+        register = register & ~(0x0007 << 7)
+        register = register | ((0x0007 & refr_rate) << 7)
         self.i2c.MLX90640_I2CWriteReg(0x800D, register)
 
     # int MLX90640_DumpEE(uint8_t slaveAddr, uint16_t *eeData)
@@ -143,7 +147,8 @@ class Mlx(object):
             cnt = cnt + 1
         
         if(cnt > 4):
-            return -8
+            # return -8
+            return frame_data
         
         # error = MLX90640_I2CRead(slaveAddr, 0x800D, 1, &controlRegister1);
         controlRegister1 = self.i2c.MLX90640_I2CReadReg(0x800D)
