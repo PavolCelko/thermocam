@@ -1,1 +1,2 @@
 g++ -Imlx90640-library/headers/ mlx90640-library/functions/MLX90640_API.cpp mlx90640-library/functions/MLX90640_I2C_emul.cpp  -shared -fPIC  -o x.so
+dumpEE_dirty_backup:      gcc -I/usr/include/python2.7/  -lpython2.7 -shared -fPIC  -Imlx90640-library/headers/ mlx90640-library/functions/MLX90640_API.c mlx90640-library/functions/MLX90640_I2C_emul.c pyAdapterMLX90640.c  -o build/mlx.so
