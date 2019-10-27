@@ -100,9 +100,30 @@ int main(void)
     printf("KsTa: %f\n", sensorParams.KsTa);
 
     printf("T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0T0\n\n");
+    printf("\nT0 Frame 0\n");
     tr = MLX90640_GetTa(aFrame_0_test_result, &sensorParams) - 8;
+    printf("Tr = %f \n", tr);
+    printf("SubPg myy = %d \n", MLX90640_GetSubPageNumber(aFrame_0_test_result));
+    printf("SubPg mlx = %d \n", MLX90640_GetSubPageNumber((uint16_t*)Frame_0));
 
     MLX90640_CalculateTo(aFrame_0_test_result, &sensorParams, 1.0, tr, pfFrameT0);
+
+    for(i = 0; i < 32; i++)
+        printf("%0.3f ", pfFrameT0[i]);
+
+    printf("\nT0 Frame 1\n");
+    tr = MLX90640_GetTa((uint16_t*)Frame_1, &sensorParams) - 8;
+    printf("Tr = %f \n", tr);
+    printf("SubPg myy = %d \n", MLX90640_GetSubPageNumber(aFrame_1_test_result));
+    printf("SubPg mlx = %d \n", MLX90640_GetSubPageNumber((uint16_t*)Frame_1));
+
+    // this line should not be here. It sets flag for subpage 1. It should be set by chip simulator automatically.
+    aFrame_1_test_result[833] = aFrame_1_test_result[833] | 0x0001;
+
+    printf("SubPg myy = %04X \n", aFrame_1_test_result[833]);
+    printf("SubPg mlx = %04X \n", Frame_1[833]);
+
+    MLX90640_CalculateTo(aFrame_1_test_result, &sensorParams, 1.0, tr, pfFrameT0);
 
     for(i = 0; i < 32; i++)
         printf("%0.3f ", pfFrameT0[i]);

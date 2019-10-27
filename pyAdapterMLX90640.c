@@ -12,30 +12,13 @@ static PyObject * wrapper_init(PyObject * self, PyObject * args)
   PyObject * ret;
   PyObject * subList;
   paramsMLX90640 *mlx90640_params_handle;
-  uint16_t* memory;
 
-  memory = MLX90640_I2CInit();
+  MLX90640_I2CInit();
   
   mlx90640_params_handle = (paramsMLX90640 *)malloc(sizeof(paramsMLX90640));
   
   ret = PyInt_FromLong((long int)mlx90640_params_handle);
-  ret = PyList_New(6);
-  // subList = PyList_New(10);
-  // PyList_SetItem(subList, 0, PyInt_FromLong(memory[0]));
-  // PyList_SetItem(subList, 1, PyInt_FromLong(memory[1]));
-  // PyList_SetItem(subList, 2, PyInt_FromLong(memory[2]));
-  // PyList_SetItem(subList, 3, PyInt_FromLong(memory[3]));
-  // PyList_SetItem(subList, 4, PyInt_FromLong(memory[4]));
-  PyList_SetItem(ret, 0, PyInt_FromLong((long int)mlx90640_params_handle));
-  // PyList_SetItem(ret, 1, subList);
-  PyList_SetItem(ret, 1, PyInt_FromLong((long int)memory));
-  PyList_SetItem(ret, 2, PyInt_FromLong((long int)memory[0]));
-  PyList_SetItem(ret, 3, PyInt_FromLong((long int)memory[1]));
-  PyList_SetItem(ret, 4, PyInt_FromLong((long int)memory[2]));
-  PyList_SetItem(ret, 5, PyInt_FromLong((long int)memory[3]));
-  return ret;
-
-  ret = PyInt_FromLong((long int)mlx90640_params_handle);
+  
   return ret;
 }
 
@@ -54,43 +37,6 @@ static PyObject * wrapper_close(PyObject * self, PyObject * args)
     ret = ret = PyInt_FromLong(0);
 
     return ret;
-}
-
-static PyObject * wrapper_readMem(PyObject * self, PyObject * args)
-{
-    PyObject * ret;
-    long int memAddr = 0;
-    long int dataLen = 0;
-    uint16_t wordData;
-    int status;
-    uint16_t *eeData;
-    int i;
-
-    //parse arguments
-    if (!PyArg_ParseTuple(args, "ll", &memAddr, &dataLen)) {
-        return NULL;
-    }
-
-    if(dataLen > 1)
-    {
-      eeData = (uint16_t *)malloc(832 * sizeof(uint16_t));
-      ret = PyList_New(dataLen);
-      // status = MLX90640_I2CRead(0x33, memAddr, (uint16_t)dataLen, eeData);
-      status = MLX90640_DumpEE(0x33, eeData);
-      // eeData[821] =  (uint16_t)0;
-      // ret = PyInt_FromLong(eeData[0]);
-      for(i = 0; i < dataLen; i++)
-      {
-        PyList_SetItem(ret, i, PyInt_FromLong((long int)eeData[i]));
-      }
-      return ret;      
-    }
-    else
-    {
-      status = MLX90640_I2CRead(0x33, memAddr, (uint16_t)dataLen, &wordData);
-      ret = PyInt_FromLong(wordData);
-      return ret; 
-    }
 }
 
 static PyObject * wrapper_setKsTa(PyObject * self, PyObject * args)
@@ -126,16 +72,70 @@ static PyObject * wrapper_getKsTa(PyObject * self, PyObject * args)
     return ret;
 }
 
+static PyObject * wrapper_getSomeParams(PyObject * self, PyObject * args)
+{
+    PyObject * ret;
+    long int handle = 0;
+    PyObject * outList = PyList_New(38);
+    //parse arguments
+    if (!PyArg_ParseTuple(args, "l", &handle)) {
+        return NULL;
+    }
+
+    PyList_SetItem(outList, 0, PyInt_FromLong(((paramsMLX90640*)handle)->kVdd));
+    PyList_SetItem(outList, 1, PyInt_FromLong(((paramsMLX90640*)handle)->vdd25));
+    PyList_SetItem(outList, 2, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->KvPTAT));
+    PyList_SetItem(outList, 3, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->KtPTAT));
+    PyList_SetItem(outList, 4, PyInt_FromLong(((paramsMLX90640*)handle)->vPTAT25));
+    PyList_SetItem(outList, 5, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->alphaPTAT));
+    PyList_SetItem(outList, 6, PyInt_FromLong(((paramsMLX90640*)handle)->gainEE));
+    PyList_SetItem(outList, 7, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->tgc));
+    PyList_SetItem(outList, 8, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->cpKv));
+    PyList_SetItem(outList, 9, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->cpKta));
+    PyList_SetItem(outList, 10, PyInt_FromLong(((paramsMLX90640*)handle)->resolutionEE));
+    PyList_SetItem(outList, 11, PyInt_FromLong(((paramsMLX90640*)handle)->calibrationModeEE));
+    PyList_SetItem(outList, 12, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->KsTa));
+    PyList_SetItem(outList, 13, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->ksTo[0]));
+    PyList_SetItem(outList, 14, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->ksTo[1]));
+    PyList_SetItem(outList, 15, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->ksTo[2]));
+    PyList_SetItem(outList, 16, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->ksTo[3]));
+    PyList_SetItem(outList, 17, PyInt_FromLong(((paramsMLX90640*)handle)->ct[0]));
+    PyList_SetItem(outList, 18, PyInt_FromLong(((paramsMLX90640*)handle)->ct[1]));
+    PyList_SetItem(outList, 19, PyInt_FromLong(((paramsMLX90640*)handle)->ct[2]));
+    PyList_SetItem(outList, 20, PyInt_FromLong(((paramsMLX90640*)handle)->ct[3]));
+    PyList_SetItem(outList, 21, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->cpAlpha[0]));
+    PyList_SetItem(outList, 22, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->cpAlpha[1]));
+    PyList_SetItem(outList, 23, PyInt_FromLong(((paramsMLX90640*)handle)->cpOffset[0]));
+    PyList_SetItem(outList, 24, PyInt_FromLong(((paramsMLX90640*)handle)->cpOffset[1]));
+    PyList_SetItem(outList, 25, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->ilChessC[0]));
+    PyList_SetItem(outList, 26, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->ilChessC[1]));
+    PyList_SetItem(outList, 27, PyFloat_FromDouble((double)((paramsMLX90640*)handle)->ilChessC[2]));
+    PyList_SetItem(outList, 28, PyInt_FromLong(((paramsMLX90640*)handle)->brokenPixels[0]));
+    PyList_SetItem(outList, 29, PyInt_FromLong(((paramsMLX90640*)handle)->brokenPixels[1]));
+    PyList_SetItem(outList, 30, PyInt_FromLong(((paramsMLX90640*)handle)->brokenPixels[2]));
+    PyList_SetItem(outList, 31, PyInt_FromLong(((paramsMLX90640*)handle)->brokenPixels[3]));
+    PyList_SetItem(outList, 32, PyInt_FromLong(((paramsMLX90640*)handle)->brokenPixels[4]));
+    PyList_SetItem(outList, 33, PyInt_FromLong(((paramsMLX90640*)handle)->outlierPixels[0]));
+    PyList_SetItem(outList, 34, PyInt_FromLong(((paramsMLX90640*)handle)->outlierPixels[1]));
+    PyList_SetItem(outList, 35, PyInt_FromLong(((paramsMLX90640*)handle)->outlierPixels[2]));
+    PyList_SetItem(outList, 36, PyInt_FromLong(((paramsMLX90640*)handle)->outlierPixels[3]));
+    PyList_SetItem(outList, 37, PyInt_FromLong(((paramsMLX90640*)handle)->outlierPixels[4]));
+    
+    ret = outList;
+
+    return ret;
+}
+
 static PyObject * wrapper_DumpEE(PyObject * self, PyObject * args)
 {
   PyObject * ret;
   int status, i;
   unsigned char slaveAddr;
   PyObject * inputList;
-  PyObject * outputList;
   Py_ssize_t len;
   uint16_t *eeData = (uint16_t *)malloc(832 * sizeof(uint16_t));
   memset(eeData, 0xFF, 832 * sizeof(uint16_t));
+
   //parse arguments
   if (!PyArg_ParseTuple(args, "bO", &slaveAddr, &inputList)) {
     return NULL;
@@ -143,27 +143,17 @@ static PyObject * wrapper_DumpEE(PyObject * self, PyObject * args)
 
   status = MLX90640_DumpEE(slaveAddr, eeData);
   len = PyList_Size(inputList);
-  outputList = PyList_New(len);
-  //return PyInt_FromLong(eeData[1]);
-  if(1/*status == 0 && len == 832*/)
+  if(status == 0 && len == 832)
   {
     for(i = 0; i < len; i++)
     {
       status = PyList_SetItem(inputList, i, PyInt_FromLong(0x23));
       status = PyList_SetItem(inputList, i, PyInt_FromLong((unsigned long int)0x0000FFFF & (unsigned long int)eeData[i]));
-      status = PyList_SetItem(outputList, i, PyInt_FromLong((unsigned long int)0x0000FFFF & (unsigned long int)eeData[i]));
       if(status != 0)
         break;
     }
   }
-  //0x00AE, 0x499A, 0x0000, 0x2061, 0x0005
-  // PyList_SetItem(inputList, 0, PyInt_FromLong(0x00AE));
-  // PyList_SetItem(inputList, 1, PyInt_FromLong(0x499A));
-  // PyList_SetItem(inputList, 2, PyInt_FromLong(0x0000));
-  // PyList_SetItem(inputList, 3, PyInt_FromLong(0x2061));
-  // PyList_SetItem(inputList, 4, PyInt_FromLong(0x0005));
-  // ret = PyInt_FromLong(status/*0xFFFF & eeData[0]*/);
-  ret = outputList;
+  ret = PyInt_FromLong(status);
   free(eeData);
   return ret;
 }
@@ -177,13 +167,17 @@ static PyObject * wrapper_ExtractParameters(PyObject * self, PyObject * args)
   PyObject * listItem;
   Py_ssize_t len;
   uint16_t *eeData = (uint16_t *)malloc(832 * sizeof(uint16_t));
-  
-  paramsMLX90640 *MlxParamsBackup = (paramsMLX90640 *)malloc(sizeof(paramsMLX90640));
-  memcpy(MlxParamsBackup, (paramsMLX90640 *)handleMlxParams, sizeof(paramsMLX90640));
+  paramsMLX90640 *MlxParamsBackup;
+
   //parse arguments
   if (!PyArg_ParseTuple(args, "Ol", &inputList, &handleMlxParams)) {
     return NULL;
   }
+
+  MlxParamsBackup = (paramsMLX90640 *)malloc(sizeof(paramsMLX90640));
+  if(MlxParamsBackup == 0)
+    return PyInt_FromLong(-1);
+  memcpy(MlxParamsBackup, (paramsMLX90640 *)handleMlxParams, sizeof(paramsMLX90640));
 
   len = PyList_Size(inputList);
 
@@ -220,26 +214,179 @@ static PyObject * wrapper_ExtractParameters(PyObject * self, PyObject * args)
   return ret;
 }
 
+static PyObject * wrapper_GetFrameData(PyObject * self, PyObject * args)
+{
+  PyObject * ret;
+  int status, i;
+  unsigned char slaveAddr;
+  PyObject * inputList;
+  Py_ssize_t len;
+  uint16_t *frameData = (uint16_t *)malloc(834 * sizeof(uint16_t));
+  if(frameData == 0)
+    return PyInt_FromLong(-1);
+  // memset(frameData, 0xFF, 834 * sizeof(uint16_t));
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "bO", &slaveAddr, &inputList)) {
+    return NULL;
+  }
+
+  status = MLX90640_GetFrameData(slaveAddr, frameData);
+  len = PyList_Size(inputList);
+  if(status == 0 && len == 834)
+  {
+    for(i = 0; i < len; i++)
+    {
+      status = PyList_SetItem(inputList, i, PyInt_FromLong(frameData[i]));
+      if(status != 0)
+        break;
+    }
+  }
+  ret = PyInt_FromLong(status);
+  free(frameData);
+  return ret;
+}
+
+static PyObject * wrapper_GetTa(PyObject * self, PyObject * args)
+{
+  PyObject * ret;
+  float TaVal;
+  long int handleMlxParams = 0;
+  int i;
+  PyObject * inputList;
+  PyObject * listItem;
+  Py_ssize_t len;
+  uint16_t *frameData;
+  
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "Ol", &inputList, &handleMlxParams)) {
+    return NULL;
+  }
+
+  frameData = (uint16_t *)malloc(834 * sizeof(uint16_t));
+  if(frameData == 0)
+    return PyInt_FromLong(-1);
+  len = PyList_Size(inputList);
+  for(i = 0; i < len; i++)
+  {
+    listItem = PyList_GetItem(inputList, i);
+    frameData[i] = PyInt_AsLong(listItem);
+  }
+
+  TaVal = MLX90640_GetTa(frameData, (paramsMLX90640 *)handleMlxParams);
+
+  ret = PyFloat_FromDouble(TaVal);
+  free(frameData);
+  return ret;
+}
+
+static PyObject * wrapper_CalculateTo(PyObject * self, PyObject * args)
+{
+  PyObject * ret;
+  float TaVal;
+  int i;
+  PyObject * inputList;
+  PyObject * outputList;
+  PyObject * listItem;
+  Py_ssize_t lenInputList;
+  Py_ssize_t lenOutputList;
+  uint16_t *frameData;
+  long int handleMlxParams = 0;
+  float emissivity;
+  float tr;
+  float *result;
+  int status = -1;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "OlffO", &inputList, &handleMlxParams, &emissivity, &tr, &outputList)) {
+    return NULL;
+  }
+
+  lenInputList = PyList_Size(inputList);
+  lenOutputList = PyList_Size(outputList);
+  frameData = (uint16_t *)malloc(lenInputList * sizeof(uint16_t));
+  result = (float *)malloc(lenOutputList * sizeof(float));
+  if(frameData == 0 || result == 0)
+    status = -1;
+  else
+  {
+    for(i = 0; i < lenInputList; i++)
+    {
+      listItem = PyList_GetItem(inputList, i);
+      frameData[i] = PyInt_AsLong(listItem);
+    }
+    for(i = 0; i < lenOutputList; i++)
+    {
+      listItem = PyList_GetItem(outputList, i);
+      result[i] = PyFloat_AsDouble(listItem);
+    }
+
+    MLX90640_CalculateTo(frameData, (paramsMLX90640 *)handleMlxParams, emissivity, tr, result);
+
+    for(i = 0; i < lenOutputList; i++)
+    {
+      status = PyList_SetItem(outputList, i, PyFloat_FromDouble(result[i]));
+      if(status != 0)
+        break;
+    }
+  }
+
+  free(frameData);
+  free(result);
+  return PyInt_FromLong(status);
+}
+
+static PyObject * wrapper_GetSubPageNumber(PyObject * self, PyObject * args)
+{
+  Py_ssize_t lenInputList;
+  int i, subpage;
+  PyObject * listItem;
+  PyObject * inputList;
+  uint16_t * frameData;
+  
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "O", &inputList)) {
+    return NULL;
+  }
+
+  lenInputList = PyList_Size(inputList);
+  frameData = (uint16_t *)malloc(lenInputList * sizeof(uint16_t));
+  if(frameData == 0)
+    subpage = -1;
+  else
+  {
+    for(i = 0; i < lenInputList; i++)
+    {
+      listItem = PyList_GetItem(inputList, i);
+      frameData[i] = PyInt_AsLong(listItem);
+    }
+    subpage = MLX90640_GetSubPageNumber(frameData);
+  }
+
+  return PyInt_FromLong(subpage);
+}
+    
 static PyMethodDef MathMethods[] = {
   { "init",        wrapper_init,               METH_VARARGS, "init function." },
   { "dumpEE",      wrapper_DumpEE,             METH_VARARGS, "init function." },
-  // { "extract",     wrapper_ExtractParameters,  METH_VARARGS, "init function." },
-  // { "init",        wrapper_GetFrameData,       METH_VARARGS, "init function." },
-  // { "init",        wrapper_GetTa,              METH_VARARGS, "init function." },
-  // { "init",        wrapper_CalculateTo,        METH_VARARGS, "init function." },
+  { "extract",     wrapper_ExtractParameters,  METH_VARARGS, "init function." },
+  { "getFrame",    wrapper_GetFrameData,       METH_VARARGS, "init function." },
+  { "getTa",       wrapper_GetTa,              METH_VARARGS, "init function." },
+  { "calcT0",      wrapper_CalculateTo,        METH_VARARGS, "init function." },
   // { "init",        wrapper_GetImage,           METH_VARARGS, "init function." },
   // { "init",        wrapper_SetResolution,      METH_VARARGS, "init function." },
   // { "init",        wrapper_GetCurResolution,   METH_VARARGS, "init function." },
   // { "init",        wrapper_SetRefreshRate,     METH_VARARGS, "init function." },
   // { "init",        wrapper_GetRefreshRate,     METH_VARARGS, "init function." },
-  // { "init",        wrapper_GetSubPageNumber,   METH_VARARGS, "init function." },
+  { "getSubPageNumber",        wrapper_GetSubPageNumber,   METH_VARARGS, "init function." },
   // { "init",        wrapper_GetCurMode,         METH_VARARGS, "init function." },
   // { "init",        wrapper_SetInterleavedMode, METH_VARARGS, "init function." },
   // { "init",        wrapper_SetChessMode,       METH_VARARGS, "init function." },
-  { "readMem",       wrapper_readMem,            METH_VARARGS, "init function." },
+  // { "readMem",       wrapper_readMem,            METH_VARARGS, "init function." },
   { "close",       wrapper_close,              METH_VARARGS, "init function." },
   { "setKsTa",     wrapper_setKsTa,            METH_VARARGS, "init function." },
   { "getKsTa",     wrapper_getKsTa,            METH_VARARGS, "init function." },
+  { "getSomeParams",     wrapper_getSomeParams,            METH_VARARGS, "init function." },
   { NULL, NULL, 0, NULL }
 };
 
