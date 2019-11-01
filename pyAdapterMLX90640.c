@@ -6,20 +6,61 @@
 #include "MLX90640_I2C_Driver.h"
 #include "MLX90640_API.h"
 
+static PyObject * fptrGetTime;
+
+float mlx_getTime(void)
+{
+  float time;
+
+  PyObject *kwargs = PyDict_New();
+  PyObject *args2 = PyTuple_New(0);
+
+  args2 = PyTuple_New(0);
+  //PyTuple_SetItem(args2, 0, PyInt_FromLong(44));  
+  time = (float)PyFloat_AS_DOUBLE( PyObject_Call(fptrGetTime, args2, kwargs) );
+
+  return time;
+}
+
+static PyObject * wrapper_getTime(PyObject * self, PyObject * args)
+{
+  PyObject * ret;
+  PyObject *kwargs = PyDict_New();
+  PyObject *args2 = PyTuple_New(0);
+  
+  // PyObject* PyObject_Call(PyObject *callable, PyObject *args, PyObject *kwargs); 
+  ret = PyObject_Call(fptrGetTime, args2, kwargs); 
+
+  return ret;
+}
 
 static PyObject * wrapper_init(PyObject * self, PyObject * args)
 {
   PyObject * ret;
   PyObject * subList;
   paramsMLX90640 *mlx90640_params_handle;
+  PyObject* getTimer;
 
-  MLX90640_I2CInit();
-  
-  mlx90640_params_handle = (paramsMLX90640 *)malloc(sizeof(paramsMLX90640));
-  
-  ret = PyInt_FromLong((long int)mlx90640_params_handle);
-  
-  return ret;
+  //parse arguments
+    if (!PyArg_ParseTuple(args, "O", &getTimer)) {
+    return NULL;
+  }
+  if(!PyCallable_Check(getTimer))
+  {
+    return PyInt_FromLong(0);
+  }
+  else
+  {
+    fptrGetTime = getTimer;
+
+    MLX90640_I2CInit(mlx_getTime);
+    
+    mlx90640_params_handle = (paramsMLX90640 *)malloc(sizeof(paramsMLX90640));
+    
+    ret = PyInt_FromLong((long int)mlx90640_params_handle);
+    
+    return ret; 
+  }
 }
 
 static PyObject * wrapper_close(PyObject * self, PyObject * args)
@@ -365,7 +406,27 @@ static PyObject * wrapper_GetSubPageNumber(PyObject * self, PyObject * args)
 
   return PyInt_FromLong(subpage);
 }
-    
+
+static PyObject * wrapper_callPy(PyObject * self, PyObject * args)
+{
+  PyObject * ret;
+  PyObject * inputPyObj;  
+  PyObject *kwargs = PyDict_New();
+  PyObject *args2;
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "O", &inputPyObj)) {
+    return NULL;
+  }
+
+  args2 = PyTuple_New(1);
+  PyTuple_SetItem(args2, 0, PyInt_FromLong(44));
+  // PyObject* PyObject_Call(PyObject *callable, PyObject *args, PyObject *kwargs); 
+  ret = PyObject_Call(inputPyObj, args2, kwargs); 
+
+  return ret;
+}
+
+
 static PyMethodDef MathMethods[] = {
   { "init",        wrapper_init,               METH_VARARGS, "init function." },
   { "dumpEE",      wrapper_DumpEE,             METH_VARARGS, "init function." },
@@ -387,6 +448,8 @@ static PyMethodDef MathMethods[] = {
   { "setKsTa",     wrapper_setKsTa,            METH_VARARGS, "init function." },
   { "getKsTa",     wrapper_getKsTa,            METH_VARARGS, "init function." },
   { "getSomeParams",     wrapper_getSomeParams,            METH_VARARGS, "init function." },
+  { "callPyMethod",     wrapper_callPy,            METH_VARARGS, "init function." },
+  { "getTime",     wrapper_getTime,            METH_VARARGS, "init function." },
   { NULL, NULL, 0, NULL }
 };
 
