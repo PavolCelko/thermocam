@@ -42,14 +42,14 @@ static PyObject * wrapper_init(PyObject * self, PyObject * args)
   PyObject* getTimer;
 
   //parse arguments
-    if (!PyArg_ParseTuple(args, "O", &getTimer)) {
-    return NULL;
-  }
-  if(!PyCallable_Check(getTimer))
-  {
-    return PyInt_FromLong(0);
-  }
-  else
+  //   if (!PyArg_ParseTuple(args, "O", &getTimer)) {
+  //   return NULL;
+  // }
+  // if(!PyCallable_Check(getTimer))
+  // {
+  //   return PyInt_FromLong(0);
+  // }
+  //else
   {
     fptrGetTime = getTimer;
 
@@ -407,6 +407,113 @@ static PyObject * wrapper_GetSubPageNumber(PyObject * self, PyObject * args)
   return PyInt_FromLong(subpage);
 }
 
+static PyObject * wrapper_GetCurResolution(PyObject * self, PyObject * args)
+{
+  unsigned char slaveAddr;
+  int resolution;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "b", &slaveAddr)) {
+    return NULL;
+  }
+
+  resolution = MLX90640_GetCurResolution(slaveAddr);
+
+  return PyInt_FromLong(resolution);
+}
+
+static PyObject * wrapper_SetCurResolution(PyObject * self, PyObject * args)
+{
+  unsigned char slaveAddr;
+  unsigned char resolution;
+  int error;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "bb", &slaveAddr, &resolution)) {
+    return NULL;
+  }
+
+  error = MLX90640_SetResolution(slaveAddr, resolution);
+
+  return PyInt_FromLong(error);
+}
+
+static PyObject * wrapper_GetRefreshRate(PyObject * self, PyObject * args)
+{
+  unsigned char slaveAddr;
+  int refresh_rate;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "b", &slaveAddr)) {
+    return NULL;
+  }
+
+  refresh_rate = MLX90640_GetRefreshRate(slaveAddr);
+
+  return PyInt_FromLong(refresh_rate);
+}
+
+static PyObject * wrapper_SetRefreshRate(PyObject * self, PyObject * args)
+{
+  unsigned char slaveAddr;
+  unsigned char refresh_rate;
+  int error;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "bb", &slaveAddr, &refresh_rate)) {
+    return NULL;
+  }
+
+  error = MLX90640_SetRefreshRate(slaveAddr, refresh_rate);
+
+  return PyInt_FromLong(error);
+}
+
+static PyObject * wrapper_GetCurMode(PyObject * self, PyObject * args)
+{
+  unsigned char slaveAddr;
+  int mode;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "b", &slaveAddr)) {
+    return NULL;
+  }
+
+  mode = MLX90640_GetCurMode(slaveAddr);
+
+  return PyInt_FromLong(mode);
+}
+
+static PyObject * wrapper_SetInterleavedMode(PyObject * self, PyObject * args)
+{
+  unsigned char slaveAddr;
+  int error;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "b", &slaveAddr)) {
+    return NULL;
+  }
+
+  error = MLX90640_SetInterleavedMode(slaveAddr);
+
+  return PyInt_FromLong(error);
+}
+
+static PyObject * wrapper_SetChessMode(PyObject * self, PyObject * args)
+{
+  unsigned char slaveAddr;
+  int error;
+
+  //parse arguments
+  if (!PyArg_ParseTuple(args, "b", &slaveAddr)) {
+    return NULL;
+  }
+
+  error = MLX90640_SetChessMode(slaveAddr);
+
+  return PyInt_FromLong(error);
+}
+
 static PyObject * wrapper_callPy(PyObject * self, PyObject * args)
 {
   PyObject * ret;
@@ -435,15 +542,14 @@ static PyMethodDef MathMethods[] = {
   { "getTa",       wrapper_GetTa,              METH_VARARGS, "init function." },
   { "calcT0",      wrapper_CalculateTo,        METH_VARARGS, "init function." },
   // { "init",        wrapper_GetImage,           METH_VARARGS, "init function." },
-  // { "init",        wrapper_SetResolution,      METH_VARARGS, "init function." },
-  // { "init",        wrapper_GetCurResolution,   METH_VARARGS, "init function." },
-  // { "init",        wrapper_SetRefreshRate,     METH_VARARGS, "init function." },
-  // { "init",        wrapper_GetRefreshRate,     METH_VARARGS, "init function." },
+  { "setResol",        wrapper_SetCurResolution,      METH_VARARGS, "init function." },
+  { "getResol",        wrapper_GetCurResolution,   METH_VARARGS, "init function." },
+  { "setRR",        wrapper_SetRefreshRate,     METH_VARARGS, "init function." },
+  { "getRR",        wrapper_GetRefreshRate,     METH_VARARGS, "init function." },
   { "getSubPageNumber",        wrapper_GetSubPageNumber,   METH_VARARGS, "init function." },
-  // { "init",        wrapper_GetCurMode,         METH_VARARGS, "init function." },
-  // { "init",        wrapper_SetInterleavedMode, METH_VARARGS, "init function." },
-  // { "init",        wrapper_SetChessMode,       METH_VARARGS, "init function." },
-  // { "readMem",       wrapper_readMem,            METH_VARARGS, "init function." },
+  { "getMode",        wrapper_GetCurMode,         METH_VARARGS, "init function." },
+  { "setInterMode",        wrapper_SetInterleavedMode, METH_VARARGS, "init function." },
+  { "setChessMode",        wrapper_SetChessMode,       METH_VARARGS, "init function." },
   { "close",       wrapper_close,              METH_VARARGS, "init function." },
   { "setKsTa",     wrapper_setKsTa,            METH_VARARGS, "init function." },
   { "getKsTa",     wrapper_getKsTa,            METH_VARARGS, "init function." },
