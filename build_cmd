@@ -1,2 +1,7 @@
 g++ -Imlx90640-library/headers/ mlx90640-library/functions/MLX90640_API.cpp mlx90640-library/functions/MLX90640_I2C_emul.cpp  -shared -fPIC  -o x.so
 dumpEE_dirty_backup:      gcc -I/usr/include/python2.7/  -lpython2.7 -shared -fPIC  -Imlx90640-library/headers/ mlx90640-library/functions/MLX90640_API.c mlx90640-library/functions/MLX90640_I2C_emul.c pyAdapterMLX90640.c  -o build/mlx.so
+
+sudo chmod a+w /sys/module/i2c_bcm2708/parameters/combined
+sudo echo -n 1 > /sys/module/i2c_bcm2708/parameters/combined
+gcc -g -I/usr/include/python2.7/  -lpython2.7 -shared -fPIC  -Imlx90640-library/headers/ -Ii2c  mlx90640-library/functions/MLX90640_API.c i2cAdapter.c i2c/i2c.c  pyAdapterMLX90640.c  -o build/mlx.so
+
