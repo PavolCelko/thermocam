@@ -43,6 +43,10 @@ class MlxI2C:
         reg_address = []
         reg_address.append((writeAddress & 0xFF00) >> 8)
         reg_address.append(writeAddress & 0x00FF)
+
+        if writeAddress == 0x800D:
+            data = data & ~0x0002
+        
         reg_address.append((data & 0xFF00) >> 8)
         reg_address.append(data & 0x00FF)
 
