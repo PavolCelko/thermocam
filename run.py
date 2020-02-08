@@ -24,6 +24,8 @@ def main():
     
     print("Current mode: " + mode)
 
+    sensor.MLX90640_EnableSubpageMode()
+
     sensor.MLX90640_SetRefreshRate(2)
     refreshRate = sensor.MLX90640_GetRefreshRate()
     print("refreshRate: " + str(refreshRate) + ' Hz')

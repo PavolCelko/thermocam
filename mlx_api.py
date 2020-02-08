@@ -99,6 +99,18 @@ class Mlx(object):
         register = register | ((0x0007 & refr_rate) << 7)
         self.i2c.MLX90640_I2CWriteReg(0x800D, register)
 
+    def MLX90640_EnableSubpageMode(self):
+        register = int()
+        register = self.i2c.MLX90640_I2CReadReg(0x800D)
+        register = register | (0x0001)
+        self.i2c.MLX90640_I2CWriteReg(0x800D, register)
+
+    def MLX90640_DisableSubpageMode(self):
+        register = int()
+        register = self.i2c.MLX90640_I2CReadReg(0x800D)
+        register = register & ~(0x0001)
+        self.i2c.MLX90640_I2CWriteReg(0x800D, register)
+
     # int MLX90640_DumpEE(uint8_t slaveAddr, uint16_t *eeData)
     def MLX90640_DumpEE(self):
     
